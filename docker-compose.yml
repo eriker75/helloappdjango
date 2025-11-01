@@ -1,0 +1,124 @@
+services:
+  pawifyback:
+    build:
+      context: .
+    container_name: pawifyback
+    image: pawifyback
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      mailpit:
+        condition: service_started
+    networks:
+      - pawifynet
+    command: ["/start.sh"]
+    volumes:
+      - .:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    develop:
+      watch:
+        - action: sync
+          path: ./
+          target: /app
+          ignore:
+            - .env
+            - .git
+            - .gitignore
+            - .vscode
+
+  redis:
+    image: "redis:7.0"
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:${REDIS_PORT:-6379}"
+    volumes:
+      - redis_data:/data
+    networks:
+      - pawifynet
+
+  redis-commander:
+    image: "rediscommander/redis-commander:latest"
+    container_name: redis-commander
+    restart: unless-stopped
+    environment:
+      - REDIS_HOSTS=local:${REDIS_HOST:-redis}:${REDIS_PORT:-6379}
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - pawifynet
+
+  postgres:
+    image: "postgres:16-alpine"
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-pawify}
+      POSTGRES_USER: ${DB_USER:-pawify}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-pawifypass}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pawifynet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-pawify}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: "dpage/pgadmin4:latest"
+    container_name: pgadmin
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "8082:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - pawifynet
+
+  mailpit:
+    image: "axllent/mailpit:v1.27"
+    container_name: mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025" # Web interface
+      - "1025:1025" # SMTP (use this in Django)
+    environment:
+      - MP_SMTP_AUTH_ACCEPT_ANY=1
+      - MP_SMTP_AUTH_ALLOW_INSECURE=1
+    networks:
+      - pawifynet
+
+# Create named volumes for persistent data
+volumes:
+  redis_data:
+  postgres_data:
+  pgadmin_data:
+
+# Custom app network for all containers
+networks:
+  pawifynet:
+    driver: bridge
