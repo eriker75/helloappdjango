@@ -6,6 +6,8 @@
 # Archivos docker-compose principales
 COMPOSE_FILE=docker-compose.yml
 COMPOSE_SERVICES_FILE=docker-compose.service.yml
+COMPOSE_DEV_FILE=docker-compose.yml
+COMPOSE_PROD_FILE=docker-compose.yml
 DOCKER_COMPOSE=docker compose -f $(COMPOSE_FILE)
 EXEC=$(DOCKER_COMPOSE) exec helloappback python ./manage.py
 
@@ -19,33 +21,46 @@ RED=\033[0;31m
 NC=\033[0m # No Color
 
 # Comandos de desarrollo
+.PHONY: up-dev
 up-dev:
-	@echo "Levantando los contenedores en modo desarrollo..."
-	docker-compose -f $(COMPOSE_DEV_FILE) -p $(PROJECT_NAME)_dev up --build
+	@echo "$(GREEN)🚀 Levantando contenedores en modo desarrollo con watch...$(NC)"
+	@docker compose -f $(COMPOSE_DEV_FILE) -p $(PROJECT_NAME) up --build --watch
+	@echo "$(GREEN)✅ Modo desarrollo activo con hot-reload$(NC)"
 
+.PHONY: down-dev
 down-dev:
-	@echo "Bajando los contenedores en modo desarrollo..."
-	docker-compose -f $(COMPOSE_DEV_FILE) -p $(PROJECT_NAME)_dev down
+	@echo "$(RED)⬇️  Bajando contenedores de desarrollo...$(NC)"
+	@docker compose -f $(COMPOSE_DEV_FILE) -p $(PROJECT_NAME) down
+	@echo "$(GREEN)✅ Contenedores detenidos$(NC)"
 
+.PHONY: logs-dev
 logs-dev:
-	@echo "Mostrando logs de los contenedores en modo desarrollo..."
-	docker-compose -f $(COMPOSE_DEV_FILE) -p $(PROJECT_NAME)_dev logs -f
+	@echo "$(YELLOW)📋 Mostrando logs de desarrollo...$(NC)"
+	@docker compose -f $(COMPOSE_DEV_FILE) -p $(PROJECT_NAME) logs -f
 
+.PHONY: restart-dev
 restart-dev:
-	@echo "Reiniciando los contenedores en modo desarrollo..."
-	docker-compose -f $(COMPOSE_DEV_FILE) -p $(PROJECT_NAME)_dev restart
+	@echo "$(YELLOW)🔄 Reiniciando contenedores de desarrollo...$(NC)"
+	@docker compose -f $(COMPOSE_DEV_FILE) -p $(PROJECT_NAME) restart
+	@echo "$(GREEN)✅ Contenedores reiniciados$(NC)"
 
+.PHONY: build-dev
 build-dev:
-	@echo "Construyendo las imágenes en modo desarrollo..."
-	docker-compose -f $(COMPOSE_DEV_FILE) -p $(PROJECT_NAME)_dev build
+	@echo "$(YELLOW)🔨 Construyendo imágenes de desarrollo...$(NC)"
+	@docker compose -f $(COMPOSE_DEV_FILE) -p $(PROJECT_NAME) build --no-cache
+	@echo "$(GREEN)✅ Imágenes construidas$(NC)"
 
+.PHONY: clean-dev
 clean-dev:
-	@echo "Limpiando los contenedores en modo desarrollo..."
-	docker-compose -f $(COMPOSE_DEV_FILE) -p $(PROJECT_NAME)_dev down --volumes
+	@echo "$(RED)🧹 Limpiando contenedores de desarrollo...$(NC)"
+	@docker compose -f $(COMPOSE_DEV_FILE) -p $(PROJECT_NAME) down --volumes
+	@echo "$(GREEN)✅ Limpieza completada$(NC)"
 
+.PHONY: destroy-dev
 destroy-dev:
-	@echo "Destruyendo los contenedores en modo desarrollo..."
-	docker-compose -f $(COMPOSE_DEV_FILE) -p $(PROJECT_NAME)_dev down --volumes --rmi all
+	@echo "$(RED)💣 Destruyendo contenedores de desarrollo...$(NC)"
+	@docker compose -f $(COMPOSE_DEV_FILE) -p $(PROJECT_NAME) down --volumes --rmi all
+	@echo "$(GREEN)✅ Destrucción completada$(NC)"
 
 migrate:
 	@echo "Aplicando migraciones a la base de datos..."
@@ -62,33 +77,46 @@ load-data:
 	$(EXEC) loaddata fixtures/petimages.json
 
 # Comandos de producción
+.PHONY: up-prod
 up-prod:
-	@echo "Levantando los contenedores en modo producción..."
-	docker-compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME)_prod up -d --build
+	@echo "$(GREEN)🚀 Levantando contenedores en modo producción...$(NC)"
+	@docker compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME) up -d --build
+	@echo "$(GREEN)✅ Servicios de producción levantados en modo detached$(NC)"
 
+.PHONY: down-prod
 down-prod:
-	@echo "Bajando los contenedores en modo producción..."
-	docker-compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME)_prod down
+	@echo "$(RED)⬇️  Bajando contenedores de producción...$(NC)"
+	@docker compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME) down
+	@echo "$(GREEN)✅ Contenedores detenidos$(NC)"
 
+.PHONY: logs-prod
 logs-prod:
-	@echo "Mostrando logs de los contenedores en modo producción..."
-	docker-compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME)_prod logs -f
+	@echo "$(YELLOW)📋 Mostrando logs de producción...$(NC)"
+	@docker compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME) logs -f
 
+.PHONY: restart-prod
 restart-prod:
-	@echo "Reiniciando los contenedores en modo producción..."
-	docker-compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME)_prod restart
+	@echo "$(YELLOW)🔄 Reiniciando contenedores de producción...$(NC)"
+	@docker compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME) restart
+	@echo "$(GREEN)✅ Contenedores reiniciados$(NC)"
 
+.PHONY: build-prod
 build-prod:
-	@echo "Construyendo las imágenes en modo producción..."
-	docker-compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME)_prod build
+	@echo "$(YELLOW)🔨 Construyendo imágenes de producción...$(NC)"
+	@docker compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME) build --no-cache
+	@echo "$(GREEN)✅ Imágenes construidas$(NC)"
 
+.PHONY: clean-prod
 clean-prod:
-	@echo "Limpiando los contenedores en modo producción..."
-	docker-compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME)_prod down --volumes
+	@echo "$(RED)🧹 Limpiando contenedores de producción...$(NC)"
+	@docker compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME) down --volumes
+	@echo "$(GREEN)✅ Limpieza completada$(NC)"
 
+.PHONY: destroy-prod
 destroy-prod:
-	@echo "Destruyendo los contenedores en modo producción..."
-	docker-compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME)_prod down --volumes --rmi all
+	@echo "$(RED)💣 Destruyendo contenedores de producción...$(NC)"
+	@docker compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME) down --volumes --rmi all
+	@echo "$(GREEN)✅ Destrucción completada$(NC)"
 
 # HelloApp: Comandos docker-compose principales
 
@@ -153,29 +181,46 @@ ps:
 status: ps
 
 # Solo infraestructura (sin backend Django)
+.PHONY: up-services
 up-services:
-	@echo "Levantando solo servicios de infraestructura (sin backend Django)..."
-	docker-compose -f $(COMPOSE_SERVICES_FILE) -p $(PROJECT_NAME)_infra up -d --build
+	@echo "$(GREEN)🔧 Levantando solo servicios de infraestructura (sin backend Django)...$(NC)"
+	@docker compose -f $(COMPOSE_SERVICES_FILE) -p $(PROJECT_NAME)_infra up -d --build
+	@echo "$(GREEN)✅ Infraestructura levantada$(NC)"
+	@echo "$(YELLOW)📋 URLs disponibles:$(NC)"
+	@echo "  - PostgreSQL:        localhost:5432"
+	@echo "  - pgAdmin:           http://localhost:8082"
+	@echo "  - Redis:             localhost:6379"
+	@echo "  - Redis Commander:   http://localhost:8081"
+	@echo "  - Mailpit (SMTP UI): http://localhost:8025"
 
+.PHONY: down-services
 down-services:
-	@echo "Bajando solo servicios de infraestructura..."
-	docker-compose -f $(COMPOSE_SERVICES_FILE) -p $(PROJECT_NAME)_infra down
+	@echo "$(RED)⬇️  Bajando servicios de infraestructura...$(NC)"
+	@docker compose -f $(COMPOSE_SERVICES_FILE) -p $(PROJECT_NAME)_infra down
+	@echo "$(GREEN)✅ Servicios detenidos$(NC)"
 
+.PHONY: logs-services
 logs-services:
-	@echo "Mostrando logs de los servicios de infraestructura..."
-	docker-compose -f $(COMPOSE_SERVICES_FILE) -p $(PROJECT_NAME)_infra logs -f
+	@echo "$(YELLOW)📋 Mostrando logs de infraestructura...$(NC)"
+	@docker compose -f $(COMPOSE_SERVICES_FILE) -p $(PROJECT_NAME)_infra logs -f
 
+.PHONY: restart-services
 restart-services:
-	@echo "Reiniciando servicios de infraestructura..."
-	docker-compose -f $(COMPOSE_SERVICES_FILE) -p $(PROJECT_NAME)_infra restart
+	@echo "$(YELLOW)🔄 Reiniciando servicios de infraestructura...$(NC)"
+	@docker compose -f $(COMPOSE_SERVICES_FILE) -p $(PROJECT_NAME)_infra restart
+	@echo "$(GREEN)✅ Servicios reiniciados$(NC)"
 
+.PHONY: clean-services
 clean-services:
-	@echo "Limpiando servicios de infraestructura (eliminando volúmenes)..."
-	docker-compose -f $(COMPOSE_SERVICES_FILE) -p $(PROJECT_NAME)_infra down --volumes
+	@echo "$(RED)🧹 Limpiando servicios de infraestructura...$(NC)"
+	@docker compose -f $(COMPOSE_SERVICES_FILE) -p $(PROJECT_NAME)_infra down --volumes
+	@echo "$(GREEN)✅ Limpieza completada$(NC)"
 
+.PHONY: destroy-services
 destroy-services:
-	@echo "Destruyendo servicios de infraestructura (volúmenes + imágenes)..."
-	docker-compose -f $(COMPOSE_SERVICES_FILE) -p $(PROJECT_NAME)_infra down --volumes --rmi all
+	@echo "$(RED)💣 Destruyendo servicios de infraestructura...$(NC)"
+	@docker compose -f $(COMPOSE_SERVICES_FILE) -p $(PROJECT_NAME)_infra down --volumes --rmi all
+	@echo "$(GREEN)✅ Destrucción completada$(NC)"
 
 # Entrar a contenedores
 .PHONY: shell-back
@@ -231,32 +276,46 @@ help:
 	@echo "$(GREEN)  🐾 Makefile para HelloApp Backend Django$(NC)"
 	@echo "$(GREEN)════════════════════════════════════════════════════════════════$(NC)"
 	@echo ""
+	@echo "$(YELLOW)🚀 Modos de Ejecución:$(NC)"
+	@echo "  $(GREEN)make up-dev$(NC)            - 🔥 Desarrollo con hot-reload (watch mode, NO detached)"
+	@echo "  $(GREEN)make up$(NC)                - 🚀 Producción detached (backend + infraestructura)"
+	@echo "  $(GREEN)make up-prod$(NC)           - 🚀 Alias de 'make up' para producción"
+	@echo "  $(GREEN)make up-services$(NC)       - 🔧 Solo infraestructura (PostgreSQL, Redis, etc.)"
+	@echo ""
 	@echo "$(YELLOW)📦 Comandos Principales:$(NC)"
-	@echo "  $(GREEN)make up$(NC)                - 🚀 Levantar todos los servicios (backend + infraestructura)"
 	@echo "  $(GREEN)make down$(NC)              - ⬇️  Bajar todos los servicios"
+	@echo "  $(GREEN)make down-dev$(NC)          - ⬇️  Bajar servicios de desarrollo"
+	@echo "  $(GREEN)make down-prod$(NC)         - ⬇️  Bajar servicios de producción"
+	@echo "  $(GREEN)make down-services$(NC)     - ⬇️  Bajar solo infraestructura"
 	@echo "  $(GREEN)make restart$(NC)           - 🔄 Reiniciar todos los servicios"
-	@echo "  $(GREEN)make build$(NC)             - 🔨 Construir imágenes de todos los servicios"
+	@echo "  $(GREEN)make build$(NC)             - 🔨 Construir imágenes"
+	@echo "  $(GREEN)make build-dev$(NC)         - 🔨 Construir imágenes (desarrollo, sin cache)"
 	@echo "  $(GREEN)make ps$(NC)                - 📊 Ver estado de los contenedores"
 	@echo "  $(GREEN)make status$(NC)            - 📊 Alias de ps"
 	@echo ""
 	@echo "$(YELLOW)📋 Logs:$(NC)"
 	@echo "  $(GREEN)make logs$(NC)              - 📋 Mostrar logs de todos los servicios"
 	@echo "  $(GREEN)make logs-back$(NC)         - 📋 Mostrar solo logs del backend Django"
+	@echo "  $(GREEN)make logs-dev$(NC)          - 📋 Logs de desarrollo"
+	@echo "  $(GREEN)make logs-prod$(NC)         - 📋 Logs de producción"
 	@echo "  $(GREEN)make logs-services$(NC)     - 📋 Logs de servicios de infraestructura"
 	@echo ""
 	@echo "$(YELLOW)🗄️  Base de Datos:$(NC)"
 	@echo "  $(GREEN)make migrate$(NC)           - 🗄️  Aplicar migraciones a la base de datos"
 	@echo "  $(GREEN)make makemigrations$(NC)    - 📝 Crear nuevas migraciones"
+	@echo "  $(GREEN)make db-shell$(NC)          - 💻 Conectar a PostgreSQL shell (psql)"
+	@echo "  $(GREEN)make db-backup$(NC)         - 💾 Crear backup de la base de datos"
+	@echo "  $(GREEN)make db-restore file=X$(NC) - 📥 Restaurar desde backup"
 	@echo ""
 	@echo "$(YELLOW)🧹 Limpieza:$(NC)"
 	@echo "  $(GREEN)make clean$(NC)             - 🧹 Limpiar servicios (eliminar volúmenes)"
+	@echo "  $(GREEN)make clean-dev$(NC)         - 🧹 Limpiar desarrollo"
+	@echo "  $(GREEN)make clean-prod$(NC)        - 🧹 Limpiar producción"
+	@echo "  $(GREEN)make clean-services$(NC)    - 🧹 Limpiar infraestructura"
 	@echo "  $(GREEN)make destroy$(NC)           - 💣 Destruir todo (volúmenes + imágenes)"
-	@echo ""
-	@echo "$(YELLOW)🔧 Servicios (solo infraestructura):$(NC)"
-	@echo "  $(GREEN)make up-services$(NC)       - Levantar solo infraestructura (PostgreSQL, Redis, etc.)"
-	@echo "  $(GREEN)make down-services$(NC)     - Bajar solo servicios de infraestructura"
-	@echo "  $(GREEN)make clean-services$(NC)    - Limpiar servicios de infraestructura"
-	@echo "  $(GREEN)make destroy-services$(NC)  - Destruir servicios de infraestructura"
+	@echo "  $(GREEN)make destroy-dev$(NC)       - 💣 Destruir desarrollo"
+	@echo "  $(GREEN)make destroy-prod$(NC)      - 💣 Destruir producción"
+	@echo "  $(GREEN)make destroy-services$(NC)  - 💣 Destruir infraestructura"
 	@echo ""
 	@echo "$(YELLOW)💻 Shell/Terminal en contenedores:$(NC)"
 	@echo "  $(GREEN)make shell-back$(NC)        - Entrar al contenedor backend (helloappback)"
@@ -265,11 +324,6 @@ help:
 	@echo "  $(GREEN)make shell-redis$(NC)       - Entrar al contenedor Redis"
 	@echo "  $(GREEN)make shell-mailpit$(NC)     - Entrar al contenedor Mailpit"
 	@echo "  $(GREEN)make shell-pgadmin$(NC)     - Entrar al contenedor pgAdmin"
-	@echo ""
-	@echo "$(YELLOW)🗄️  PostgreSQL Database:$(NC)"
-	@echo "  $(GREEN)make db-shell$(NC)          - Conectar a PostgreSQL shell (psql)"
-	@echo "  $(GREEN)make db-backup$(NC)         - Crear backup de la base de datos"
-	@echo "  $(GREEN)make db-restore file=X$(NC) - Restaurar desde backup"
 	@echo ""
 	@echo "$(YELLOW)📌 URLs de servicios:$(NC)"
 	@echo "  - Django Backend:    $(GREEN)http://localhost:8000$(NC)"

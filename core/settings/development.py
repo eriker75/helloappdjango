@@ -2,6 +2,7 @@
 Development settings.
 """
 
+import os
 from .base import *
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -18,8 +19,12 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME', 'helloapp'),
+        'USER': os.environ.get('DB_USER', 'helloapp'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'helloapppass'),
+        'HOST': os.environ.get('DB_HOST', 'postgres'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 

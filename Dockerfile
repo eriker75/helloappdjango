@@ -7,10 +7,11 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Prevent Python from writing .pyc files to disk (not needed in containers)
 ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies for mysqlclient and general builds
+# Install system dependencies for PostgreSQL and general builds
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
-    default-libmysqlclient-dev \
+    libpq-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Set work directory
