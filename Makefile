@@ -1,4 +1,4 @@
-# Makefile para Pawify
+# Makefile para HelloApp
 
 # Default target when running 'make' without arguments
 .DEFAULT_GOAL := help
@@ -7,10 +7,10 @@
 COMPOSE_FILE=docker-compose.yml
 COMPOSE_SERVICES_FILE=docker-compose.service.yml
 DOCKER_COMPOSE=docker compose -f $(COMPOSE_FILE)
-EXEC=$(DOCKER_COMPOSE) exec pawifyback python ./manage.py
+EXEC=$(DOCKER_COMPOSE) exec helloappback python ./manage.py
 
 # Nombre del proyecto para docker-compose
-PROJECT_NAME=pawify
+PROJECT_NAME=helloapp
 
 # Colors for output
 GREEN=\033[0;32m
@@ -90,7 +90,7 @@ destroy-prod:
 	@echo "Destruyendo los contenedores en modo producción..."
 	docker-compose -f $(COMPOSE_PROD_FILE) -p $(PROJECT_NAME)_prod down --volumes --rmi all
 
-# Pawify: Comandos docker-compose principales
+# HelloApp: Comandos docker-compose principales
 
 .PHONY: up
 up:
@@ -118,7 +118,7 @@ logs:
 .PHONY: logs-back
 logs-back:
 	@echo "$(YELLOW)📋 Mostrando logs del backend Django...$(NC)"
-	@docker compose -f $(COMPOSE_FILE) -p $(PROJECT_NAME) logs -f pawifyback
+	@docker compose -f $(COMPOSE_FILE) -p $(PROJECT_NAME) logs -f helloappback
 
 .PHONY: restart
 restart:
@@ -180,8 +180,8 @@ destroy-services:
 # Entrar a contenedores
 .PHONY: shell-back
 shell-back:
-	@echo "$(YELLOW)💻 Entrando al contenedor backend (pawifyback)...$(NC)"
-	@docker exec -it pawifyback bash
+	@echo "$(YELLOW)💻 Entrando al contenedor backend (helloappback)...$(NC)"
+	@docker exec -it helloappback bash
 
 .PHONY: shell-postgres
 shell-postgres:
@@ -210,25 +210,25 @@ shell-pgadmin:
 .PHONY: db-shell
 db-shell:
 	@echo "$(YELLOW)🗄️  Conectando a PostgreSQL shell...$(NC)"
-	@docker exec -it postgres psql -U pawify -d pawify
+	@docker exec -it postgres psql -U helloapp -d helloapp
 
 .PHONY: db-backup
 db-backup:
 	@echo "$(YELLOW)💾 Creando backup de la base de datos...$(NC)"
-	@docker exec -t postgres pg_dump -U pawify pawify > backup_$$(date +%Y%m%d_%H%M%S).sql
+	@docker exec -t postgres pg_dump -U helloapp helloapp > backup_$$(date +%Y%m%d_%H%M%S).sql
 	@echo "$(GREEN)✅ Backup creado exitosamente$(NC)"
 
 .PHONY: db-restore
 db-restore:
 	@echo "$(RED)⚠️  Restaurando base de datos desde backup...$(NC)"
 	@if [ -z "$(file)" ]; then echo "$(RED)Error: Especifica el archivo con file=backup.sql$(NC)"; exit 1; fi
-	@docker exec -i postgres psql -U pawify pawify < $(file)
+	@docker exec -i postgres psql -U helloapp helloapp < $(file)
 	@echo "$(GREEN)✅ Base de datos restaurada$(NC)"
 
 .PHONY: help
 help:
 	@echo "$(GREEN)════════════════════════════════════════════════════════════════$(NC)"
-	@echo "$(GREEN)  🐾 Makefile para Pawify Backend Django$(NC)"
+	@echo "$(GREEN)  🐾 Makefile para HelloApp Backend Django$(NC)"
 	@echo "$(GREEN)════════════════════════════════════════════════════════════════$(NC)"
 	@echo ""
 	@echo "$(YELLOW)📦 Comandos Principales:$(NC)"
@@ -259,7 +259,7 @@ help:
 	@echo "  $(GREEN)make destroy-services$(NC)  - Destruir servicios de infraestructura"
 	@echo ""
 	@echo "$(YELLOW)💻 Shell/Terminal en contenedores:$(NC)"
-	@echo "  $(GREEN)make shell-back$(NC)        - Entrar al contenedor backend (pawifyback)"
+	@echo "  $(GREEN)make shell-back$(NC)        - Entrar al contenedor backend (helloappback)"
 	@echo "  $(GREEN)make shell-postgres$(NC)    - Entrar al contenedor PostgreSQL"
 	@echo "  $(GREEN)make shell-db$(NC)          - Alias de shell-postgres"
 	@echo "  $(GREEN)make shell-redis$(NC)       - Entrar al contenedor Redis"

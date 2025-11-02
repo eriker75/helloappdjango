@@ -1,4 +1,4 @@
-# Dockerfile for Pawify-Django
+# Dockerfile for HelloApp-Django
 FROM python:3.13-bullseye
 
 # Ensure logs are sent straight to the terminal (no buffering)

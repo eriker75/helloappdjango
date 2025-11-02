@@ -8,7 +8,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - pawifynet
+      - helloappnet
 
   redis-commander:
     image: "rediscommander/redis-commander:latest"
@@ -21,24 +21,24 @@ services:
     depends_on:
       - redis
     networks:
-      - pawifynet
+      - helloappnet
 
   postgres:
     image: "postgres:16-alpine"
     container_name: postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_NAME:-pawify}
-      POSTGRES_USER: ${DB_USER:-pawify}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-pawifypass}
+      POSTGRES_DB: ${DB_NAME:-helloapp}
+      POSTGRES_USER: ${DB_USER:-helloapp}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-helloapppass}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - pawifynet
+      - helloappnet
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-pawify}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-helloapp}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -58,7 +58,7 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:
-      - pawifynet
+      - helloappnet
 
   mailpit:
     image: "axllent/mailpit:v1.27"
@@ -71,7 +71,7 @@ services:
       - MP_SMTP_AUTH_ACCEPT_ANY=1
       - MP_SMTP_AUTH_ALLOW_INSECURE=1
     networks:
-      - pawifynet
+      - helloappnet
 
 volumes:
   redis_data:
@@ -79,5 +79,5 @@ volumes:
   pgadmin_data:
 
 networks:
-  pawifynet:
+  helloappnet:
     driver: bridge

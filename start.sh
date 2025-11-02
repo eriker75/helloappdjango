@@ -11,9 +11,9 @@ import psycopg2
 from psycopg2 import OperationalError
 
 host = os.getenv('DB_HOST', 'postgres')
-user = os.getenv('DB_USER', 'pawify')
-pw = os.getenv('DB_PASSWORD', 'pawifypass')
-db = os.getenv('DB_NAME', 'pawify')
+user = os.getenv('DB_USER', 'helloapp')
+pw = os.getenv('DB_PASSWORD', 'helloapppass')
+db = os.getenv('DB_NAME', 'helloapp')
 port = int(os.getenv('DB_PORT', '5432'))
 timeout = int(os.getenv('DB_HEALTH_TIMEOUT', '180'))
 start = time.time()
